@@ -1,23 +1,35 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stddef.h>
 #include <stdint.h>
-#include <Winsock2.h>
 
 int main(int argc, char** argv) {
-    char buffer[10] = { 0 };
-    char buffer2[10] = { 0 };
+    FILE       *f1,  *f2;
+    uint32_t   n1,   n2;
 
-    FILE* fp = fopen(argv[1], "r");
-    fread(buffer, sizeof(char), 10, fp);
-    int a = atoi(buffer);
+    if (argc <= 2) {
+        printf("syntax : add-nbo <file1> <file2> \n");
+        printf("sample : add-nbo a.bin c.bin \n");
+        return -1;
+    }
 
-    FILE* fp2 = fopen(argv[2], "r");
-    fread(buffer2, sizeof(char), 10, fp2);
-    int b = atoi(buffer2);
+    f1 = fopen(argv[1], "rb");
+    f2 = fopen(argv[2], "rb");
 
-    printf("%d(0x%x) + %d(0x%x) = %d(0x%x)", a, a, b, b, a + b, a + b);
+    if (f1 == NULL || f2 == NULL) {
+        printf("file open error \n");
+        return -1;
+    }
+
+    fread(&n1, 1, sizeof(uint32_t), f1);
+    fread(&n2, 1, sizeof(uint32_t), f2);
+
+    n1 = ntohl(n1);
+    n2 = ntohl(n2);
+
+    printf("%d(0x%x) + %d(0x%x) = %d(0x%x)\n", n1, n1, n2, n2, (n1 + n2), (n1 + n2));
+
+    fclose(f1);
+    fclose(f2);
+
     return 0;
 }
